@@ -15,8 +15,6 @@ def traverse(path,options)
 			options[:sn] += 1 if options[:sn] != nil
 		end
 
-		
-
 		dir.close
 	else
 		process_file(path,options)
@@ -33,7 +31,7 @@ def process_file(path,options)
 
 	#replace file name to serial number
 
-	filename=(options[:sn]).to_s if options[:sn] != nil
+	filename=sprintf("%02d",(options[:sn])) if options[:sn] != nil
 
 	current_path=File.dirname(path)
 
