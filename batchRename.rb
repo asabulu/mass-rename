@@ -4,6 +4,11 @@ def traverse(path,options)
 	if FileTest.directory?(path)
 		dir = Dir.open (path)
 
+		#set serial number to 1 if the sn switch is on.
+		#for folder may has multiple sub folders, 
+		#set serial number to default when dive into 
+		#a new folder
+
 		options[:sn] = 1  if options[:sn] != nil
 
 		while name=dir.read	
@@ -23,14 +28,16 @@ end
 
 def process_file(path,options)
 
-	exp_path=File.expand_path(path) # the whole path for the file
+	# the whole path for the file
+	exp_path=File.expand_path(path) 
 
+	# the extension of the file
 	extname=File.extname(path)	
 
+	# get the file name without extension
 	filename=File.basename(path,".*")
 
-	#replace file name to serial number
-
+	#replace file name to serial number if the sn switch is on
 	filename=sprintf("%02d",(options[:sn])) if options[:sn] != nil
 
 	current_path=File.dirname(path)
@@ -46,16 +53,20 @@ end
 options={}
 
 optparse = OptionParser.new do|opts|
-   # Set a banner, displayed at the top
+   # Set banner of the program, displayed at the top
    # of the help screen.
+
    opts.banner = "Usage: MassRename [options]"
  
-   # Define the options, and what they do
+   # Define the options
+
+   #switch
    options[:sn] = nil
    opts.on( '-n', '--serial-number', 'use serial number to replace the original Filename' ) do
      options[:sn] = 1
    end
 
+   #flag
    options[:prefix] = nil
    opts.on( '-p', '--prefix string', 'Append prefix to Filename' ) do|prefixString|
      options[:prefix] = prefixString
@@ -71,8 +82,7 @@ optparse = OptionParser.new do|opts|
      options[:filepath] = path
    end
  
-   # This displays the help screen, all programs are
-   # assumed to have this option.
+   # Display the help screen.
    opts.on( '-h', '--help', 'Display this screen' ) do
      puts
      puts opts
@@ -80,20 +90,12 @@ optparse = OptionParser.new do|opts|
    end
  end
 
-# Parse the command-line. Remember there are two forms
-# of the parse method. The 'parse' method simply parses
-# ARGV, while the 'parse!' method parses ARGV and removes
-# any options found there, as well as any parameters for
-# the options. What's left is the list of files to resize.
+# Parse the command-line
 optparse.parse!
 
-#puts options[:prefix] if options[:prefix]
-#puts options[:suffix] if options[:suffix]
-#puts options[:logfile] if options[:logfile]
-  
 if options[:filepath]==nil
-		puts optparse
-		exit(1)
+	puts optparse
+	exit(1)
 end
   
 if (options[:prefix]==nil && options[:suffix]==nil && options[:sn]==nil )
@@ -104,6 +106,7 @@ end
 
 puts "set prefix to "  + options[:prefix] if options[:prefix]
 puts "set suffix to "	 + options[:suffix] if options[:suffix]
+
 sleep 2
 
 puts
