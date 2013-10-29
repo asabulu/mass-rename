@@ -18,12 +18,14 @@ def traverse(path,options)
 			traverse(path + "/" + name,options)
 		
 			options[:sn] += 1 if options[:sn] != nil
+
 		end
 
 		dir.close
 	else
 		process_file(path,options)
 	end
+
 end
 
 def process_file(path,options)
@@ -37,17 +39,22 @@ def process_file(path,options)
 	# get the file name without extension
 	filename=File.basename(path,".*")
 
-	#replace file name to serial number if the sn switch is on
-	filename=sprintf("%02d",(options[:sn])) if options[:sn] != nil
+	#replace file name to serial number if the sn switch is on and mode is replace
+	if options[:sn] != nil
+
+		snfilename=sprintf("%02d",(options[:sn])) if options[:mode] == "r"
+		snfilename=filename + "_" + sprintf("%02d",(options[:sn])) if options[:mode] == "a"
+	
+	end 	
 
 	current_path=File.dirname(path)
 
 	prefix = (options[:prefix] == nil) ? "" : options[:prefix] + "_"
 	suffix = (options[:suffix]	== nil) ? "" : "_" + options[:suffix]
 	
-	File.rename(exp_path,File.join(current_path,prefix + filename + suffix + extname))
+	File.rename(exp_path,File.join(current_path,prefix + snfilename + suffix + extname))
 
-	puts "File renamed from #{filename + extname} to #{prefix + filename + suffix + extname} "
+	puts "File renamed from #{filename + extname} to #{prefix + snfilename + suffix + extname} "
 end	
 
 options={}
@@ -62,7 +69,7 @@ optparse = OptionParser.new do|opts|
 
    #switch
    options[:sn] = nil
-   opts.on( '-n', '--serial-number', 'use serial number to replace the original Filename' ) do
+   opts.on( '-n', '--serial-number', 'use serial number to replace or append to the original Filename' ) do
      options[:sn] = 1
    end
 
@@ -82,6 +89,11 @@ optparse = OptionParser.new do|opts|
      options[:filepath] = path
    end
  
+ 	 options[:mode] = nil
+   opts.on( '-m', '--serial-number-mode mode', 'Use serial number to append to or replace the Filename [a|r] . Append is the default mode.' ) do|mode|
+     options[:mode] = mode
+   end			
+
    # Display the help screen.
    opts.on( '-h', '--help', 'Display this screen' ) do
      puts
@@ -101,6 +113,21 @@ end
 if (options[:prefix]==nil && options[:suffix]==nil && options[:sn]==nil )
 	puts optparse
 	exit(1)
+end
+
+if (options[:sn] !=nil)
+	
+	options[:mode] ||= "a"
+	
+	modeAvaliable=%w(a r)
+
+	if modeAvaliable.include?(options[:mode])
+
+	else
+		 puts optparse
+		 exit(1)
+	end	
+	
 end
  
 
