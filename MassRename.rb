@@ -29,12 +29,15 @@ def traverse(path,options)
       			  	options[:sn] += 1 
       			  end  
       		end	
-      	else
-      		options[:sn] += 1
+      	#else
+      	#	options[:sn] += 1
       	end 		
       end		
 
 			traverse(path + "/" + name,options)
+
+			options[:sn] += 1 if ((options[:sn] != nil) && (options[:reuse]==nil))
+
 
 		end
 
@@ -161,8 +164,13 @@ end
 
 puts "set prefix to "  + options[:prefix] if options[:prefix]
 puts "set suffix to "	 + options[:suffix] if options[:suffix]
+puts "set reuse serial number for same file name feature on" if options[:reuse] !=nil
 
-sleep 1
+if options[:sn] != nil
+	puts "use serial number to #{options[:mode]=='a'?'append to':'replace'} the file name"
+end 
+
+sleep 2
 
 puts
 puts "Rename Start"
