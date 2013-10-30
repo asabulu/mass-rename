@@ -11,17 +11,35 @@ def traverse(path,options)
 
 		options[:sn] = 1  if options[:sn] != nil
 
+		$filesProcessed=[]
+
 		while name=dir.read	
 			next if name=="."
 			next if name==".."
 		
+			filename=File.basename(path + "/" + name,".*")
+
+			if options[:sn] != nil
+      	if options[:reuse]==true
+      		if $filesProcessed.size==0
+      			$filesProcessed.push(filename)
+      		else
+      				if !$filesProcessed.include?(filename)
+      					$filesProcessed.push(filename)
+      			  	options[:sn] += 1 
+      			  end  
+      		end	
+      	else
+      		options[:sn] += 1
+      	end 		
+      end		
+
 			traverse(path + "/" + name,options)
-		
-			options[:sn] += 1 if options[:sn] != nil
 
 		end
 
 		dir.close
+
 	else
 		process_file(path,options)
 	end
@@ -63,7 +81,7 @@ options={}
 
 optparse = OptionParser.new do|opts|
    # Set banner of the program, displayed at the top
-   # of the help screen.
+   # of the screen.
 
    opts.banner = "Usage: MassRename [options]"
  
@@ -73,6 +91,11 @@ optparse = OptionParser.new do|opts|
    options[:sn] = nil
    opts.on( '-n', '--serial-number', 'use serial number to replace or append to the original Filename' ) do
      options[:sn] = 1
+   end
+
+   options[:reuse] = nil
+   opts.on( '-r', '--serial-number-reuse', 'reuse serial number for same Filename within a folder' ) do
+     options[:reuse] = true
    end
 
    #flag
@@ -107,6 +130,9 @@ optparse = OptionParser.new do|opts|
 # Parse the command-line
 optparse.parse!
 
+#files processed array
+$filesProcessed=[]
+
 if options[:filepath]==nil
 	puts optparse
 	exit(1)
@@ -136,7 +162,7 @@ end
 puts "set prefix to "  + options[:prefix] if options[:prefix]
 puts "set suffix to "	 + options[:suffix] if options[:suffix]
 
-sleep 2
+sleep 1
 
 puts
 puts "Rename Start"
