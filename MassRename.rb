@@ -40,6 +40,8 @@ def process_file(path,options)
 	filename=File.basename(path,".*")
 
 	#replace file name to serial number if the sn switch is on and mode is replace
+	snfilename=filename 
+	
 	if options[:sn] != nil
 
 		snfilename=sprintf("%02d",(options[:sn])) if options[:mode] == "r"
